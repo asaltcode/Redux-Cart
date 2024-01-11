@@ -2,21 +2,29 @@ import React, {useState, useRef, useEffect } from 'react'
 import { FaAngleDown } from "react-icons/fa6";
 import { IoMdAdd } from "react-icons/io";
 import { RiSubtractFill } from "react-icons/ri";
+import { useSelector, useDispatch } from 'react-redux'
+import { deleteCart } from './redux/CardSlicer';
 
-const Cart = ({title, description, thumbnail, price, stock}) => {
+const Cart = ({title, description, thumbnail, price, stock, id}) => {
   
+  let products = useSelector(state => state.product)
+  let dispatch = useDispatch();
   let [count,setcount] = useState(1)
 
   let handleCount = ({type}) =>{
     if(count < stock && type === "INCREMENT"){
-      console.log(stock)
      setcount(count + 1)
     }
     if(count > 1 && type === "DECREMENT"){
       setcount(count - 1)
     }
-
   }
+
+const handleDelete = (id)=>{
+  console.log(id)
+  dispatch(deleteCart(id))
+}
+
   // description scroll effects
   const scrollContainerRef = useRef(null);
   const scrollToTop = () => {
@@ -65,10 +73,10 @@ const Cart = ({title, description, thumbnail, price, stock}) => {
         </div>
         <div className="totalQuantity">
           <p className="fw-bold">Total Price :</p>
-          <p>temp</p>
+          <p>${price * count}</p>
         </div>
         <div className="removeCart" >
-          <p>Remove</p>
+          <p onClick={()=> handleDelete(id)}>Remove</p>
         </div>
       </div>
    </>

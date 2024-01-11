@@ -1,7 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import CardSlicer from "./CardSlicer";
+import counterReducer from "./CardSlicer";
+
 export default configureStore({
-  reducer:{
-  cart : CardSlicer  
-  }
+  reducer: {
+     product: counterReducer,
+  },
 })
