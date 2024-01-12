@@ -1,31 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import Cart from "./Cart";
 import { API_URL } from "../App";
 import axios from "axios";
 import { useSelector, useDispatch } from 'react-redux'
 import {saveAllCart } from "./redux/CardSlicer";
+// import { getTotal } from "./redux/CardSlicer";
+import { getTotal } from "./redux/TotalSlicer";
 
-const ProductCard = () => {
-
+ const ProductCard = () => {
   const dispatch = useDispatch()
-  const products = useSelector(state => state.product)
+  const products = useSelector(state => state.product) //All product lists
+
+  const total = useSelector(state => state.total)
+ 
+  // Finally it shows the total amount
+  let Totals = total.reduce((p,e) => p = p + e,0)
 
 
-  let [product, setProduct] = useState([]);
-  const getData = async () => {
-    try {
-      let res = await axios.get(API_URL);
-      
-      if (res.status === 200) {
-        dispatch(saveAllCart(res.data))
-        setProduct(res.data);
-      }
-    } catch (error) {}
-  };
+let [product, setProduct] = useState([]);
+const getData = async () => {
+  try {
+    let res = await axios.get(API_URL);
+    
+    if (res.status === 200) {
+      dispatch(saveAllCart(res.data))
+      dispatch(getTotal(res.data.map(e=>e.price)))
+      setProduct(res.data);
+    }
+  } catch (error) {}
+};
+useEffect(()=>{
+  dispatch(getTotal(products.map(e=>e.price)))
+},[])
 
-  useEffect(() => {
+useEffect(() => {
     getData();
   }, []);
+
   return (
     <>
       <div className="container-fulid pb-5 mt-5  addToCart">
@@ -33,7 +44,7 @@ const ProductCard = () => {
           <div className="row row-cols-2 row-cols-sm-1 row-cols-md-2">
             {
               products.map((e,i)=>{
-                return <Cart  dispatch={dispatch} title={e.title} description={e.description} thumbnail={e.thumbnail} price={e.price} stock={e.stock} id={e.id} key={e.id} products={products} />
+                return <Cart  dispatch={dispatch} title={e.title} description={e.description} thumbnail={e.thumbnail} price={e.price} stock={e.stock} id={e.id} key={e.id} product={products} />
               })
             }
             </div>
@@ -42,7 +53,7 @@ const ProductCard = () => {
           <div className="total-amount">
             <div className="subTotal">
               <p className="text-light">SUBTOTSL :</p>
-              <p>$.hoolTotal</p>
+              <p>$.{Totals}</p>
             </div>
             <div className="shipping">
               <p className="text-light">SHIPPING :</p>
@@ -51,7 +62,7 @@ const ProductCard = () => {
             <hr />
             <div className="total">
               <p className="fw-bold">TOTAL : </p>
-              <p>$.hoolTotal</p>
+              <p>$.{Totals}</p>
             </div>
           </div>
         </div>

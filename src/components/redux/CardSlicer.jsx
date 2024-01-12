@@ -11,8 +11,7 @@ const findIndex = (array, id) =>{
   return index
 }
 
-
-export const counterSlice = createSlice({
+export const ProducSlice = createSlice({
   name: 'product',
   initialState: [],
   reducers : {
@@ -20,8 +19,9 @@ export const counterSlice = createSlice({
      return action.payload
     },
     deleteCart: (state, action) => {
-        let id = action.payload
-        let index = findIndex(state, id)
+      let id = action.payload
+      let index = findIndex(state, id)
+      console.log(index)
         if(index != null){
           state.splice(index, 1)
         }
@@ -31,7 +31,7 @@ export const counterSlice = createSlice({
   }
 })
 
-export const {saveAllCart, deleteCart} = counterSlice.actions
+export const {saveAllCart, deleteCart} = ProducSlice.actions
 
-export default counterSlice.reducer
+export default ProducSlice.reducer
 

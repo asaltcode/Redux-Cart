@@ -4,26 +4,60 @@ import { IoMdAdd } from "react-icons/io";
 import { RiSubtractFill } from "react-icons/ri";
 import { useSelector, useDispatch } from 'react-redux'
 import { deleteCart } from './redux/CardSlicer';
+import { getTotal } from './redux/TotalSlicer';
 
 const Cart = ({title, description, thumbnail, price, stock, id}) => {
-  
+  let [count,setcount] = useState(1)
+  //List All Items get 
   let products = useSelector(state => state.product)
   let dispatch = useDispatch();
-  let [count,setcount] = useState(1)
 
-  let handleCount = ({type}) =>{
-    if(count < stock && type === "INCREMENT"){
-     setcount(count + 1)
+  // all handle findIndex
+  let findIndex = (array, id) =>{
+    let index
+  for(let i = 0; i < array.length; i++){
+    if(products[i].id === id){
+       index = i
+       break
+    }
+  }
+  return index
+}
+
+
+  const total = useSelector(state => state.total) // Shows the sum of the total items
+  
+  
+  let handleCount = ({type},id) =>{
+    let newArray = [...total]    
+
+    if(count < stock && type === "INCREMENT"){      
+      setcount(count = count + 1)     
+       // Total handle in increment
+      let index = findIndex(total, id)
+      let tempTotal = products[index].price * 2
+      newArray.splice(index, 1, price * count)  
+      dispatch(getTotal(newArray))   
     }
     if(count > 1 && type === "DECREMENT"){
       setcount(count - 1)
+      // Total handle in decrement
+      let newArray = [...total]    
+      let index = findIndex(total, id)
+      let tempTotal =  (count * price)-price
+      newArray.splice(index, 1, tempTotal)  
+      dispatch(getTotal(newArray))       
     }
-  }
-
-const handleDelete = (id)=>{
-  console.log(id)
+  }  
+  const handleDelete = (id)=>{
   dispatch(deleteCart(id))
+  // Handles sums when deleting items
+  let index = findIndex(total, id)
+  let newArray = [...total]
+  newArray.splice(index, 1)
+  dispatch(getTotal(newArray))
 }
+
 
   // description scroll effects
   const scrollContainerRef = useRef(null);
@@ -38,10 +72,12 @@ const handleDelete = (id)=>{
       const container = scrollContainerRef.current;
       container.scrollTop = container.scrollHeight - container.clientHeight;
     }
-  };
+  }
+
+
   return (
    <>
-   <div className="col col-12 cart-container  col-md-8 mb-4">
+     <div className="col col-12 cart-container  col-md-8 mb-4">
         <div className="row  cart-content  dataCard">
             <div className="col col-sm-4  col-md-3 mt-3">
                 <img src={thumbnail} alt={title} />
@@ -66,7 +102,7 @@ const handleDelete = (id)=>{
       <div className="col col-12 col-md-4">
         <div className="quantity m-2">
           <div className="quantity-box">
-          <div><button onClick={()=> handleCount({type: "DECREMENT"})} className='btn btn-primary'><RiSubtractFill /></button>&nbsp;<span className="quantity-value btn btn-warning">{count}</span>&nbsp;<button onClick={()=> handleCount({type: "INCREMENT"})} className='btn btn-primary'><IoMdAdd /></button></div>
+          <div><button onClick={()=> handleCount({type: "DECREMENT"}, id)} className='btn btn-primary'><RiSubtractFill /></button>&nbsp;<span className="quantity-value btn btn-warning">{count}</span>&nbsp;<button onClick={()=> handleCount({type: "INCREMENT"},id)} className='btn btn-primary'><IoMdAdd /></button></div>
           </div>
           
           <p>$ {price}</p>
